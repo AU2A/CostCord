@@ -29,8 +29,7 @@ async def on_ready():
 @bot.tree.command(name="add")
 @app_commands.describe(name="Name", price="Price")
 async def add(interaction: discord.Interaction, name: str, price: int):
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    history.append({"name": name, "price": price, "time": now})
+    history.append(name, price)
     await interaction.response.send_message(f"Name: {name}, Price: {price}")
 
 
