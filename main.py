@@ -1,15 +1,15 @@
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from src.history import History
-import datetime, discord, json, os
+import datetime, discord, os
 
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 channelID = os.getenv("Notification-Channel-ID")
 
-notify_time = datetime.time(21, 30, 0)
+notify_time = datetime.time(20, 0, 0)
 
 history = History()
 
@@ -22,6 +22,7 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} commands")
+        notify.start()
     except Exception as e:
         print(f"Failed to sync commands: {e}")
 
@@ -31,6 +32,17 @@ async def on_ready():
 async def add(interaction: discord.Interaction, name: str, price: int):
     history.append(name, price)
     await interaction.response.send_message(f"Name: {name}, Price: {price}")
+
+
+@tasks.loop(minutes=1)
+async def notify():
+    delta = datetime.datetime.now() - datetime.datetime.combine(
+        datetime.date.today(), notify_time
+    )
+    delta = delta.total_seconds()
+    if 0 <= delta and delta < 60:
+        channel = bot.get_channel(int(channelID))
+        await channel.send("Time to update your expenses!")
 
 
 bot.run(TOKEN)
