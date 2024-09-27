@@ -31,7 +31,12 @@ async def on_ready():
 @app_commands.describe(name="Name", price="Price")
 async def add(interaction: discord.Interaction, name: str, price: int):
     history.append(name, price)
-    await interaction.response.send_message(f"Name: {name}, Price: {price}")
+    embed = discord.Embed(
+        title="Expense added",
+        description=f"Name: {name}, Price: {price}",
+        color=discord.Color.orange(),
+    )
+    await interaction.response.send_message(embed=embed)
 
 
 @tasks.loop(minutes=1)
