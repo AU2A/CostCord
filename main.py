@@ -41,6 +41,7 @@ async def add(interaction: discord.Interaction, name: str, price: int):
 
 @tasks.loop(minutes=1)
 async def notify():
+    await bot.wait_until_ready()
     delta = datetime.datetime.now() - datetime.datetime.combine(
         datetime.date.today(), notify_time
     )
