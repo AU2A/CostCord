@@ -3,6 +3,7 @@ import json, os, datetime
 
 class History:
     def __init__(self):
+        self.time_format = "%Y-%m-%d %H:%M:%S"
         if not os.path.exists("data"):
             os.mkdir("data")
         if not os.path.exists("data/history.json"):
@@ -12,18 +13,20 @@ class History:
             self.history = json.load(f)["history"]
 
     def append(self, name, price):
+        now = datetime.datetime.now().strftime(self.time_format)
         item = {
             "name": name,
             "price": price,
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": now,
         }
         self.history.append(item)
         self.history = sorted(
             self.history,
-            key=lambda x: datetime.datetime.strptime(x["time"], "%Y-%m-%d %H:%M:%S"),
+            key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
             reverse=True,
         )
         self.save()
+        return now
 
     def save(self):
         with open("data/history.json", "w", encoding="utf8") as f:

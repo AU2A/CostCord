@@ -30,7 +30,8 @@ async def on_ready():
 @bot.tree.command(name="add")
 @app_commands.describe(name="Name", price="Price")
 async def add(interaction: discord.Interaction, name: str, price: int):
-    history.append(name, price)
+    time = history.append(name, price)
+    print(f"Time: {time}, Action: Added, Name: {name}, Price: {price}")
     embed = discord.Embed(
         title="Expense added",
         description=f"Name: {name}, Price: {price}",
