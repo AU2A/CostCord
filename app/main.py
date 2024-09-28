@@ -7,7 +7,6 @@ import datetime, discord, os
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
-channelID = os.getenv("Notification-Channel-ID")
 
 notify_time = datetime.time(20, 0, 0)
 
@@ -30,8 +29,9 @@ async def on_ready():
 @bot.tree.command(name="add")
 @app_commands.describe(name="Name", price="Price")
 async def add(interaction: discord.Interaction, name: str, price: int):
-    time = history.append(name, price)
-    print(f"Time: {time}, Action: Added, Name: {name}, Price: {price}")
+    ID = interaction.channel_id
+    time = history.append(ID, name, price)
+    print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
     embed = discord.Embed(
         title="Expense added",
         description=f"Name: {name}, Price: {price}",
@@ -48,8 +48,10 @@ async def notify():
     )
     delta = delta.total_seconds()
     if 0 <= delta and delta < 60:
-        channel = bot.get_channel(int(channelID))
-        await channel.send("Time to update your expenses!")
+        channels = history.get_channels()
+        for channelID in channels:
+            channel = bot.get_channel(int(channelID))
+            await channel.send("Time to update your expenses!")
 
 
 bot.run(TOKEN)

@@ -8,20 +8,22 @@ class History:
             os.mkdir("data")
         if not os.path.exists("data/history.json"):
             with open("data/history.json", "w", encoding="utf8") as f:
-                json.dump({"history": []}, f, indent=2, ensure_ascii=False)
-        with open("data/history.json", encoding="utf8") as f:
-            self.history = json.load(f)["history"]
+                json.dump({}, f, indent=2, ensure_ascii=False)
+        with open("data/history.json", "r", encoding="utf8") as f:
+            self.history = json.load(f)
 
-    def append(self, name, price):
+    def append(self, ID, name, price):
         now = datetime.datetime.now().strftime(self.time_format)
         item = {
             "name": name,
             "price": price,
             "time": now,
         }
-        self.history.append(item)
-        self.history = sorted(
-            self.history,
+        if ID not in self.history:
+            self.history[ID] = []
+        self.history[ID].append(item)
+        self.history[ID] = sorted(
+            self.history[ID],
             key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
             reverse=True,
         )
@@ -30,4 +32,4 @@ class History:
 
     def save(self):
         with open("data/history.json", "w", encoding="utf8") as f:
-            json.dump({"history": self.history}, f, indent=2, ensure_ascii=False)
+            json.dump(self.history, f, indent=2, ensure_ascii=False)
