@@ -19,8 +19,7 @@ class History:
             "price": price,
             "time": now,
         }
-        if ID not in self.history:
-            self.history[ID] = []
+        ID = str(ID)
         self.history[ID].append(item)
         self.history[ID] = sorted(
             self.history[ID],
