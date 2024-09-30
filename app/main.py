@@ -26,6 +26,11 @@ async def on_ready():
         print(f"Failed to sync commands: {e}")
 
 
+@bot.tree.command(name="ping")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong!")
+
+
 @bot.tree.command(name="add")
 @app_commands.describe(name="Name", price="Price")
 async def add(interaction: discord.Interaction, name: str, price: int):
@@ -51,7 +56,12 @@ async def notify():
         channels = history.get_channels()
         for channelID in channels:
             channel = bot.get_channel(int(channelID))
-            await channel.send("Time to update your expenses!")
+            embed = discord.Embed(
+                title="Reminder",
+                description="Don't forget to log your expenses today!",
+                color=discord.Color.green(),
+            )
+            await channel.send(embed=embed)
 
 
 bot.run(TOKEN)

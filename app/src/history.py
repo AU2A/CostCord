@@ -38,3 +38,7 @@ class History:
         )
         self.save()
         return now
+
+    def get_channels(self):
+        self.load()
+        return self.history.keys()
