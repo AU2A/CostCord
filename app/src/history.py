@@ -13,11 +13,11 @@ class History:
 
     def load(self):
         with open(self.filename, "r", encoding="utf8") as f:
-            self.history = json.load(f)
+            self.data = json.load(f)
 
     def save(self):
         with open(self.filename, "w", encoding="utf8") as f:
-            json.dump(self.history, f, indent=2, ensure_ascii=False)
+            json.dump(self.data, f, indent=2, ensure_ascii=False)
 
     def append(self, ID, name, price):
         now = datetime.datetime.now().strftime(self.time_format)
@@ -28,11 +28,11 @@ class History:
         }
         ID = str(ID)
         self.load()
-        if ID not in self.history:
-            self.history[ID] = []
-        self.history[ID].append(item)
-        self.history[ID] = sorted(
-            self.history[ID],
+        if ID not in self.data:
+            self.data[ID] = []
+        self.data[ID].append(item)
+        self.data[ID] = sorted(
+            self.data[ID],
             key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
             reverse=True,
         )
@@ -41,4 +41,4 @@ class History:
 
     def get_channels(self):
         self.load()
-        return self.history.keys()
+        return self.data.keys()
