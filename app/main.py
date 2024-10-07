@@ -26,6 +26,23 @@ async def on_ready():
         print(f"Failed to sync commands: {e}")
 
 
+@bot.event
+async def on_message(message):
+    if "Send from iPhone" in message.content:
+        msg = message.content.split("Send from iPhone, ")[1]
+        ID = message.channel.id
+        name = msg.split("name=")[1].split(" ")[0]
+        price = int(msg.split("price=")[1])
+        time = history.append(ID, name, price)
+        print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
+        embed = discord.Embed(
+            title="Expense added",
+            description=f"Name: {name}\nPrice: {price}",
+            color=discord.Color.orange(),
+        )
+        await message.channel.send(embed=embed)
+
+
 @bot.tree.command(name="ping")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("Pong!")
@@ -39,7 +56,7 @@ async def add(interaction: discord.Interaction, name: str, price: int):
     print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
     embed = discord.Embed(
         title="Expense added",
-        description=f"Name: {name}, Price: {price}",
+        description=f"Name: {name}\nPrice: {price}",
         color=discord.Color.orange(),
     )
     await interaction.response.send_message(embed=embed)
