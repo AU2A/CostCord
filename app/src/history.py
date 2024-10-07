@@ -21,6 +21,8 @@ class History:
 
     def append(self, ID, name, price):
         now = datetime.datetime.now().strftime(self.time_format)
+        if name == "測試":
+            return now
         item = {
             "name": name,
             "price": price,
