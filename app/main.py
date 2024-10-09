@@ -40,7 +40,7 @@ async def on_message(message):
             description=f"Name: {name}\nPrice: {price}",
             color=discord.Color.orange(),
         )
-        await message.channel.send(embed=embed)
+        await message.edit(content="", embed=embed)
 
 
 @bot.tree.command(name="ping")
