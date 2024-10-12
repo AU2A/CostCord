@@ -28,7 +28,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if "Send from iPhone" in message.content:
+    if "Send from iPhone" in message.content and message.author.id == bot.user.id:
         msg = message.content.split("Send from iPhone, ")[1]
         ID = message.channel.id
         name = msg.split("name=")[1].split(" ")[0]
@@ -38,7 +38,7 @@ async def on_message(message):
         embed = discord.Embed(
             title="Expense added",
             description=f"Name: {name}\nPrice: {price}",
-            color=discord.Color.orange(),
+            color=discord.Color.gray(),
         )
         await message.edit(content="", embed=embed)
 
