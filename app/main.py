@@ -2,16 +2,16 @@ from discord import app_commands
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from src.history import History
-import datetime, discord, os
+import datetime
+import discord
+import os
 
 load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 
 notify_time = datetime.time(20, 0, 0)
-
 history = History()
-
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 
 
@@ -28,24 +28,20 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if "Send from iPhone" in message.content and message.author.id == bot.user.id:
-        msg = message.content.split("Send from iPhone, ")[1]
+    if "Expense added from iPhone" in message.content and message.author.id == bot.user.id:
+        msg = message.content.split("Expense added from iPhone, ")[1]
         ID = message.channel.id
-        name = msg.split("name=")[1].split(" ")[0]
-        price = int(msg.split("price=")[1])
+        name = msg.split("name: ")[1].split(" ")[0]
+        price = int(msg.split("price: ")[1])
         time = history.append(ID, name, price)
-        print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
+        print(
+            f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
         embed = discord.Embed(
-            title="Expense added",
+            title="Expense added from iPhone",
             description=f"Name: {name}\nPrice: {price}",
-            color=discord.Color.gray(),
+            color=discord.Color.from_str("#FF8A5B")
         )
         await message.edit(content="", embed=embed)
-
-
-@bot.tree.command(name="ping")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("Pong!")
 
 
 @bot.tree.command(name="add")
@@ -55,17 +51,37 @@ async def add(interaction: discord.Interaction, name: str, price: int):
     time = history.append(ID, name, price)
     print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
     embed = discord.Embed(
-        title="Expense added",
+        title="Expense added from Discord",
         description=f"Name: {name}\nPrice: {price}",
-        color=discord.Color.orange(),
+        color=discord.Color.from_str("#FCEADE")
     )
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="ping")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong!")
+
+
+@bot.tree.command(name="set-notify-time")
+@app_commands.describe(hour="Hour", minute="Minute")
+async def set_notify_time(interaction: discord.Interaction, hour: int, minute: int):
+    global notify_time
+    try:
+        notify_time = datetime.time(hour, minute, 0)
+        await interaction.response.send_message(f"Notify time set to {hour}:{minute}")
+    except:
+        await interaction.response.send_message("Invalid time format")
 
 
 @tasks.loop(minutes=1)
 async def notify():
     await bot.wait_until_ready()
-    delta = datetime.datetime.now() - datetime.datetime.combine(
+    now = datetime.datetime.now()
+    print(
+        f"Checking for notifications at {now.strftime('%H:%M:%S')}", end="\r"
+    )
+    delta = now - datetime.datetime.combine(
         datetime.date.today(), notify_time
     )
     delta = delta.total_seconds()
@@ -82,3 +98,8 @@ async def notify():
 
 
 bot.run(TOKEN)
+
+# 25CED1
+# FCEADE
+# FF8A5B
+# EA526F
