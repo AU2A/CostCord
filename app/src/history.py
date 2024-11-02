@@ -1,4 +1,6 @@
-import json, os, datetime
+import json
+import os
+import datetime
 
 
 class History:
@@ -35,11 +37,19 @@ class History:
         self.data[ID].append(item)
         self.data[ID] = sorted(
             self.data[ID],
-            key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
+            key=lambda x: datetime.datetime.strptime(
+                x["time"], self.time_format),
             reverse=True,
         )
         self.save()
         return now
+
+    def get(self, ID, length):
+        ID = str(ID)
+        self.load()
+        if ID not in self.data:
+            return []
+        return self.data[ID][:length]
 
     def get_channels(self):
         self.load()

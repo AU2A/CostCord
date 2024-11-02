@@ -28,7 +28,10 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if "Expense added from iPhone" in message.content and message.author.id == bot.user.id:
+    if (
+        "Expense added from iPhone" in message.content
+        and message.author.id == bot.user.id
+    ):
         msg = message.content.split("Expense added from iPhone, ")[1]
         ID = message.channel.id
         name = msg.split("name: ")[1].split(" ")[0]
@@ -39,7 +42,7 @@ async def on_message(message):
         embed = discord.Embed(
             title="Expense added from iPhone",
             description=f"Name: {name}\nPrice: {price}",
-            color=discord.Color.from_str("#FF8A5B")
+            color=discord.Color.from_str("#FF8A5B"),
         )
         await message.edit(content="", embed=embed)
 
@@ -53,7 +56,23 @@ async def add(interaction: discord.Interaction, name: str, price: int):
     embed = discord.Embed(
         title="Expense added from Discord",
         description=f"Name: {name}\nPrice: {price}",
-        color=discord.Color.from_str("#FCEADE")
+        color=discord.Color.from_str("#FCEADE"),
+    )
+    await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="list")
+@app_commands.describe(length="Length")
+async def list(interaction: discord.Interaction, length: int = 5):
+    ID = interaction.channel_id
+    expenses = history.get(ID, length)
+    description = ""
+    for expense in expenses:
+        description += f"{expense['name']} - {expense['price']} - {expense['time'].split(' ')[0]}\n"
+    embed = discord.Embed(
+        title="Expenses History",
+        description=description,
+        color=discord.Color.from_str("#FCEADE"),
     )
     await interaction.response.send_message(embed=embed)
 
@@ -79,11 +98,8 @@ async def notify():
     await bot.wait_until_ready()
     now = datetime.datetime.now()
     print(
-        f"Checking for notifications at {now.strftime('%H:%M:%S')}", end="\r"
-    )
-    delta = now - datetime.datetime.combine(
-        datetime.date.today(), notify_time
-    )
+        f"Checking for notifications at {now.strftime('%H:%M:%S')}", end="\r")
+    delta = now - datetime.datetime.combine(datetime.date.today(), notify_time)
     delta = delta.total_seconds()
     if 0 <= delta and delta < 60:
         channels = history.get_channels()
@@ -92,14 +108,9 @@ async def notify():
             embed = discord.Embed(
                 title="Reminder",
                 description="Don't forget to log your expenses today!",
-                color=discord.Color.green(),
+                color=discord.Color.from_str("#FCEADE"),
             )
             await channel.send(embed=embed)
 
 
 bot.run(TOKEN)
-
-# 25CED1
-# FCEADE
-# FF8A5B
-# EA526F
