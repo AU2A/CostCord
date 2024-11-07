@@ -37,8 +37,7 @@ async def on_message(message):
         name = msg.split("name: ")[1].split(" ")[0]
         price = int(msg.split("price: ")[1])
         time = history.append(ID, name, price)
-        print(
-            f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
+        print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
         embed = discord.Embed(
             title="Expense added from iPhone",
             description=f"Name: {name}\nPrice: {price}",
@@ -97,10 +96,10 @@ async def set_notify_time(interaction: discord.Interaction, hour: int, minute: i
 async def notify():
     await bot.wait_until_ready()
     now = datetime.datetime.now()
-    print(
-        f"Checking for notifications at {now.strftime('%H:%M:%S')}", end="\r")
+    print(f"Checking for notifications at {now.strftime('%H:%M:%S')}", end="\r")
     delta = now - datetime.datetime.combine(datetime.date.today(), notify_time)
     delta = delta.total_seconds()
+    # Daily reminder
     if 0 <= delta and delta < 60:
         channels = history.get_channels()
         for channelID in channels:
@@ -111,6 +110,22 @@ async def notify():
                 color=discord.Color.from_str("#FCEADE"),
             )
             await channel.send(embed=embed)
+    # Monthly reminder
+    if now.day == 1 and now.hour == 0 and now.minute == 0:
+        channels = history.get_channels()
+        for channelID in channels:
+            channel = bot.get_channel(int(channelID))
+            monthly_payments = history.append_monthly_payments(channelID)
+            if len(monthly_payments) > 0:
+                description = ""
+                for name, price in monthly_payments:
+                    description += f"{name} - {price}\n"
+                embed = discord.Embed(
+                    title="Monthly Payments",
+                    description=description,
+                    color=discord.Color.from_str("#FCEADE"),
+                )
+                await channel.send(embed=embed)
 
 
 bot.run(TOKEN)

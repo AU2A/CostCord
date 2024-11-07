@@ -33,23 +33,32 @@ class History:
         ID = str(ID)
         self.load()
         if ID not in self.data:
-            self.data[ID] = []
-        self.data[ID].append(item)
-        self.data[ID] = sorted(
-            self.data[ID],
-            key=lambda x: datetime.datetime.strptime(
-                x["time"], self.time_format),
+            self.data[ID]["expenses"] = []
+        self.data[ID]["expenses"].append(item)
+        self.data[ID]["expenses"] = sorted(
+            self.data[ID]["expenses"],
+            key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
             reverse=True,
         )
         self.save()
         return now
+
+    def append_monthly_payments(self, channelID):
+        self.load()
+        if channelID not in self.data:
+            return []
+        payments = []
+        for item in self.data[channelID]["monthly-payments"]:
+            if item["on"]:
+                payments.append((item["name"], item["price"]))
+        return payments
 
     def get(self, ID, length):
         ID = str(ID)
         self.load()
         if ID not in self.data:
             return []
-        return self.data[ID][:length]
+        return self.data[ID]["expenses"][:length]
 
     def get_channels(self):
         self.load()
