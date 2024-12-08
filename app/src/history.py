@@ -21,8 +21,9 @@ class History:
         with open(self.filename, "w", encoding="utf8") as f:
             json.dump(self.data, f, indent=2, ensure_ascii=False)
 
-    def append(self, ID, name, price):
-        now = datetime.datetime.now().strftime(self.time_format)
+    def append(self, ID, name, price, past_days):
+        now = datetime.datetime.now() - datetime.timedelta(days=past_days)
+        now = now.strftime(self.time_format)
         if name == "測試":
             return now
         item = {

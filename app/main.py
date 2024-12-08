@@ -47,10 +47,12 @@ async def on_message(message):
 
 
 @bot.tree.command(name="add")
-@app_commands.describe(name="Name", price="Price")
-async def add(interaction: discord.Interaction, name: str, price: int):
+@app_commands.describe(name="Name", price="Price", past_days="Past days")
+async def add(
+    interaction: discord.Interaction, name: str, price: int, past_days: int = 0
+):
     ID = interaction.channel_id
-    time = history.append(ID, name, price)
+    time = history.append(ID, name, price, past_days)
     print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
     embed = discord.Embed(
         title="Expense added from Discord",
