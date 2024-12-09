@@ -56,7 +56,7 @@ async def add(
     print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
     embed = discord.Embed(
         title="Expense added from Discord",
-        description=f"Name: {name}\nPrice: {price}",
+        description=f"Name: {name}\nPrice: {price}\nTime: {time}",
         color=discord.Color.from_str("#FCEADE"),
     )
     await interaction.response.send_message(embed=embed)
