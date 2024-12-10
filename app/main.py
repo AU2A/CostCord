@@ -111,7 +111,6 @@ async def new_monthly_payment(interaction: discord.Interaction, name: str, price
 async def list_monthly_payments(interaction: discord.Interaction):
     ID = interaction.channel_id
     payments = history.list_monthly_payments(ID)
-    print(payments)
     embed = discord.Embed(
         title="Monthly Payments",
         description=payments,
