@@ -55,10 +55,18 @@ class History:
         self.save()
         return now
 
+    def check_channel(self, channelID):
+        self.load()
+        channelID = str(channelID)
+        if channelID in self.data:
+            return channelID
+        return None
+
     def append_monthly_payments(self, channelID, now):
         self.load()
-        if channelID not in self.data:
-            return []
+        channelID = self.check_channel(channelID)
+        if channelID is None:
+            return ""
         payments = ""
         self.load()
         for item in self.data[channelID]["monthly-payments"]:
@@ -82,7 +90,8 @@ class History:
 
     def list_monthly_payments(self, channelID):
         self.load()
-        if channelID not in self.data:
+        channelID = self.check_channel(channelID)
+        if channelID is None:
             return ""
         monthly_payments = ""
         for item in self.data[channelID]["monthly-payments"]:
@@ -90,21 +99,21 @@ class History:
         return monthly_payments
 
     def new_monthly_payment(self, channelID, name, price):
-        ID = str(channelID)
+        channelID = self.check_channel(channelID)
+        if channelID is None:
+            return ""
         self.load()
-        if ID not in self.data:
-            self.data[ID] = {"monthly-payments": []}
-        self.data[ID]["monthly-payments"].append({"name": name, "price": price})
+        self.data[channelID]["monthly-payments"].append({"name": name, "price": price})
         self.save()
 
     def delete_monthly_payment(self, channelID, name, price):
-        ID = str(channelID)
+        channelID = self.check_channel(channelID)
+        if channelID is None:
+            return False
         self.load()
-        if ID not in self.data:
-            return
-        for item in self.data[ID]["monthly-payments"]:
+        for item in self.data[channelID]["monthly-payments"]:
             if item["name"] == name and item["price"] == price:
-                self.data[ID]["monthly-payments"].remove(item)
+                self.data[channelID]["monthly-payments"].remove(item)
                 self.save()
                 return True
         return False
