@@ -36,7 +36,7 @@ async def on_message(message):
         ID = message.channel.id
         name = msg.split("name: ")[1].split(" ")[0]
         price = int(msg.split("price: ")[1])
-        time = history.append(ID, name, price)
+        time = history.append(ID, name, price, 0)
         print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
         embed = discord.Embed(
             title="Expense added from iPhone",
@@ -94,6 +94,47 @@ async def set_notify_time(interaction: discord.Interaction, hour: int, minute: i
         await interaction.response.send_message("Invalid time format")
 
 
+@bot.tree.command(name="add-monthly-payment")
+@app_commands.describe(name="Name", price="Price")
+async def new_monthly_payment(interaction: discord.Interaction, name: str, price: int):
+    ID = interaction.channel_id
+    history.new_monthly_payment(ID, name, price)
+    embed = discord.Embed(
+        title="Monthly Payment added",
+        description=f"Name: {name}\nPrice: {price}",
+        color=discord.Color.from_str("#FCEADE"),
+    )
+    await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="list-monthly-payments")
+async def list_monthly_payments(interaction: discord.Interaction):
+    ID = interaction.channel_id
+    payments = history.list_monthly_payments(ID)
+    print(payments)
+    embed = discord.Embed(
+        title="Monthly Payments",
+        description=payments,
+        color=discord.Color.from_str("#FCEADE"),
+    )
+    await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="remove-monthly-payment")
+@app_commands.describe(name="Name", price="Price")
+async def delete_monthly_payment(
+    interaction: discord.Interaction, name: str, price: int
+):
+    ID = interaction.channel_id
+    result = history.delete_monthly_payment(ID, name, price)
+    embed = discord.Embed(
+        title="Monthly Payment removed",
+        description=f"Name: {name}\nPrice: {price}" if result else "Payment not found",
+        color=discord.Color.from_str("#FCEADE"),
+    )
+    await interaction.response.send_message(embed=embed)
+
+
 @tasks.loop(minutes=1)
 async def notify():
     await bot.wait_until_ready()
@@ -117,14 +158,11 @@ async def notify():
         channels = history.get_channels()
         for channelID in channels:
             channel = bot.get_channel(int(channelID))
-            monthly_payments = history.append_monthly_payments(channelID)
+            monthly_payments = history.append_monthly_payments(channelID, now)
             if len(monthly_payments) > 0:
-                description = ""
-                for name, price in monthly_payments:
-                    description += f"{name} - {price}\n"
                 embed = discord.Embed(
                     title="Monthly Payments",
-                    description=description,
+                    description=monthly_payments,
                     color=discord.Color.from_str("#FCEADE"),
                 )
                 await channel.send(embed=embed)
