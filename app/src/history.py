@@ -21,6 +21,17 @@ class History:
         with open(self.filename, "w", encoding="utf8") as f:
             json.dump(self.data, f, indent=2, ensure_ascii=False)
 
+    def get(self, ID, length):
+        ID = str(ID)
+        self.load()
+        if ID not in self.data:
+            return []
+        return self.data[ID]["expenses"][:length]
+
+    def get_channels(self):
+        self.load()
+        return self.data.keys()
+
     def append(self, ID, name, price, past_days):
         now = datetime.datetime.now() - datetime.timedelta(days=past_days)
         now = now.strftime(self.time_format)
@@ -44,23 +55,56 @@ class History:
         self.save()
         return now
 
-    def append_monthly_payments(self, channelID):
+    def append_monthly_payments(self, channelID, now):
         self.load()
         if channelID not in self.data:
             return []
-        payments = []
+        payments = ""
+        self.load()
         for item in self.data[channelID]["monthly-payments"]:
-            if item["on"]:
-                payments.append((item["name"], item["price"]))
+            payments += f"{item['name']} - {item['price']}\n"
+            self.data[channelID]["expenses"].append(
+                {
+                    "name": item["name"],
+                    "price": item["price"],
+                    "time": now.strftime(self.time_format),
+                }
+            )
+        self.data[channelID]["expenses"] = sorted(
+            self.data[channelID]["expenses"],
+            key=lambda x: datetime.datetime.strptime(x["time"], self.time_format),
+            reverse=True,
+        )
+        self.save()
+        if len(payments) > 0:
+            payments += f"Time: {now.strftime(self.time_format)}"
         return payments
 
-    def get(self, ID, length):
-        ID = str(ID)
+    def list_monthly_payments(self, channelID):
+        self.load()
+        if channelID not in self.data:
+            return ""
+        monthly_payments = ""
+        for item in self.data[channelID]["monthly-payments"]:
+            monthly_payments += f"{item['name']} - {item['price']}\n"
+        return monthly_payments
+
+    def new_monthly_payment(self, channelID, name, price):
+        ID = str(channelID)
         self.load()
         if ID not in self.data:
-            return []
-        return self.data[ID]["expenses"][:length]
+            self.data[ID] = {"monthly-payments": []}
+        self.data[ID]["monthly-payments"].append({"name": name, "price": price})
+        self.save()
 
-    def get_channels(self):
+    def delete_monthly_payment(self, channelID, name, price):
+        ID = str(channelID)
         self.load()
-        return self.data.keys()
+        if ID not in self.data:
+            return
+        for item in self.data[ID]["monthly-payments"]:
+            if item["name"] == name and item["price"] == price:
+                self.data[ID]["monthly-payments"].remove(item)
+                self.save()
+                return True
+        return False
