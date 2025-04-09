@@ -97,6 +97,26 @@ class History:
         for item in self.data[channelID]["monthly-payments"]:
             monthly_payments += f"{item['name']} - {item['price']}\n"
         return monthly_payments
+    
+    def list_past_days_payments(self, channelID, past_days):
+        self.load()
+        channelID = self.check_channel(channelID)
+        if channelID is None:
+            return ""
+        now = datetime.datetime.now() - datetime.timedelta(days=past_days)
+        now = now.strftime(self.time_format)
+        past_payments = {}
+        for item in self.data[channelID]["expenses"]:
+            if item["time"] >= now:
+                date = item['time'].split(" ")[0]
+                if date not in past_payments:
+                    past_payments[date] = []
+                past_payments[date].append({
+                    "name": item["name"],
+                    "price": item["price"],
+                    "time": item["time"].split(" ")[1],
+                })
+        return past_payments
 
     def new_monthly_payment(self, channelID, name, price):
         channelID = self.check_channel(channelID)

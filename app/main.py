@@ -63,18 +63,23 @@ async def add(
 
 
 @bot.tree.command(name="list")
-@app_commands.describe(length="Length")
+@app_commands.describe(length="Length (Max: 20)")
 async def list(interaction: discord.Interaction, length: int = 5):
+    if length < 0:
+        await interaction.response.send_message("Length must be greater than 0")
+    if length > 20:
+        length = 20
     ID = interaction.channel_id
-    expenses = history.get(ID, length)
-    description = ""
-    for expense in expenses:
-        description += f"{expense['name']} - {expense['price']} - {expense['time'].split(' ')[0]}\n"
+    expenses = history.list_past_days_payments(ID, length)
     embed = discord.Embed(
         title="Expenses History",
-        description=description,
         color=discord.Color.from_str("#FCEADE"),
     )
+    for key, value in expenses.items():
+        payments = ""
+        for item in value:
+            payments += f"{item['time']} - {item['name']} - {item['price']}\n"
+        embed.add_field(name=key, value=payments, inline=False)
     await interaction.response.send_message(embed=embed)
 
 
