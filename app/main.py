@@ -78,7 +78,7 @@ async def list(interaction: discord.Interaction, length: int = 5):
     for key, value in expenses.items():
         payments = ""
         for item in value:
-            payments += f"{item['time']} - {item['name']} - {item['price']}\n"
+            payments += f"* {item['time']} - {item['name']} - {item['price']}\n"
         embed.add_field(name=key, value=payments, inline=False)
     await interaction.response.send_message(embed=embed)
 
