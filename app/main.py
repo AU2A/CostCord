@@ -62,6 +62,26 @@ async def add(
     await interaction.response.send_message(embed=embed)
 
 
+@bot.tree.command(name="add_by_date")
+@app_commands.describe(name="Name", price="Price", month="Month", day="Day")
+async def add(
+    interaction: discord.Interaction, name: str, price: int, month: int, day: int
+):
+    past_days = (
+        datetime.datetime.now()
+        - datetime.datetime(month=month, day=day, year=datetime.datetime.now().year)
+    ).days
+    ID = interaction.channel_id
+    time = history.append(ID, name, price, past_days)
+    print(f"Time: {time}, Action: Added, ID: {ID}, Name: {name}, Price: {price}")
+    embed = discord.Embed(
+        title="Expense added from Discord",
+        description=f"Name: {name}\nPrice: {price}\nTime: {time}",
+        color=discord.Color.from_str("#FCEADE"),
+    )
+    await interaction.response.send_message(embed=embed)
+
+
 @bot.tree.command(name="list")
 @app_commands.describe(length="Length (Max: 20)")
 async def list(interaction: discord.Interaction, length: int = 5):
